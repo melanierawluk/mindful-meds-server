@@ -9,7 +9,7 @@ const addMedication = async (req, res) => {
     try {
         const timesArr = Array.isArray(times) ? times : [times];
 
-        const result = await knex('medications').insert({
+        const data = await knex('medications').insert({
             active,
             name,
             dose,
