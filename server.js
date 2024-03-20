@@ -10,6 +10,9 @@ const port = PORT || 5051;
 app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
+const userRoutes = require("./routes/user-routes");
+const medsRoutes = require("./routes/meds-routes");
+
 app.use('/user', userRoutes);
 app.use('/meds', medsRoutes);
 
