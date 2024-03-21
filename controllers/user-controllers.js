@@ -79,43 +79,30 @@ const getUserMedication = async (req, res) => {
     }
 }
 
-// - GET /user/:id/notes/:date - Retrieve notes for a specified date. Includes information about medication that were active on the specified date
+// - GET NOTES FROM USER ON SELECTED DATE
 
 const getNotes = async (req, res) => {
     try {
         const { userId, date } = req.params;
+        const dateObject = new Date(date);
+        const formattedDateParameter = dateObject.toISOString().split('T')[0];
+        console.log(formattedDateParameter)
 
-        if (NaN(date.getTime())) {
-            return res.status(400).json({
-                message: `Invalid date parameter`
-            })
-        }
         const userNotes = await knex('notes as n')
             .select('notes.note_content', 'notes.date', 'medications.name', 'medications.dose', 'medications.frequency', 'medications.times')
             .from('notes')
             .join('medications', 'medications.user_id', '=', 'notes.user_id')
             .where('notes.user_id', userId)
             .andWhereRaw('notes.date >= medications.start_date AND (notes.date <= medications.end_date OR medications.end_date IS NULL')
-            .andWhere('notes.date', date)
+            .andWhere('notes.date', formattedDateParameter)
 
-        res.json(userNotes);
+        res.status(200).json(userNotes);
 
     } catch (error) {
         res.status(500).json({
             message: `Unable to retrieve notes for this date`
         })
-
     }
-    // notes table
-
-    // date = date
-    // join   // where id = user_id
-    // medication table
-
-    // select content, name
-    // from notes,
-    // join medications
-    // where date is within start and end date || if end date null, date falls after start date
 }
 
 
