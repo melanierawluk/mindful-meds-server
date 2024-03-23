@@ -1,4 +1,5 @@
 const knex = require('knex')(require('../knexfile'));
+const dayjs = require('dayjs');
 
 
 // GET USER PROFILE
@@ -79,22 +80,17 @@ const getUserMedication = async (req, res) => {
     }
 }
 
-// - GET NOTES FROM USER ON SELECTED DATE
 
+
+// - GET NOTES FROM USER ON SELECTED DATE, WITH MEDICATIONS TAKEN ON THAT DATE
 const getNotes = async (req, res) => {
     try {
-        const { userId, date } = req.params;
-        const dateObject = new Date(date);
-        const formattedDateParameter = dateObject.toISOString().split('T')[0];
-        console.log(formattedDateParameter)
-
-        const userNotes = await knex('notes as n')
+        const userNotes = await knex('notes')
+            .join('medications', 'medications.user_id', 'notes.user_id')
             .select('notes.note_content', 'notes.date', 'medications.name', 'medications.dose', 'medications.frequency', 'medications.times')
-            .from('notes')
-            .join('medications', 'medications.user_id', '=', 'notes.user_id')
             .where('notes.user_id', userId)
-            .andWhereRaw('notes.date >= medications.start_date AND (notes.date <= medications.end_date OR medications.end_date IS NULL')
-            .andWhere('notes.date', formattedDateParameter)
+            .andWhere('notes.date', date)
+            .whereRaw('notes.date >= medications.start_date AND (notes.date <= medications.end_date OR medications.end_date IS NULL)')
 
         res.status(200).json(userNotes);
 
