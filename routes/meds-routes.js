@@ -3,7 +3,7 @@ const router = express.Router();
 const medsController = require('../controllers/meds-controllers');
 
 router
-    .post("/add", medsController.addMedication)
-    .post("/:id/update", medsController.updateMedication)
+    .post("/add/:userId", medsController.addMedication)
+    .post("/:userId/update", medsController.updateMedication)
 
 module.exports = router;

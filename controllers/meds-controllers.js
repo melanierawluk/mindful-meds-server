@@ -18,7 +18,7 @@ const addMedication = async (req, res) => {
             user_id
         });
 
-        const newMedId = result[0];
+        const newMedId = data[0];
         const createdMedication = await knex('medications').where({
             id: newMedId,
         });
