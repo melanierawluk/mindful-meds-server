@@ -7,5 +7,6 @@ router
     .get('/:userId/meds', userController.getUserMedicationList)
     .get('/:userId/meds/:medId', userController.getUserMedication)
     .get('/:userId/notes/:date', userController.getNotes)
+    .patch('/:userId/notes/:noteId', userController.editNote)
 
 module.exports = router;

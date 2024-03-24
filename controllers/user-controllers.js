@@ -1,5 +1,4 @@
 const knex = require('knex')(require('../knexfile'));
-const dayjs = require('dayjs');
 
 
 // GET USER PROFILE
@@ -85,6 +84,7 @@ const getUserMedication = async (req, res) => {
 // - GET NOTES FROM USER ON SELECTED DATE, WITH MEDICATIONS TAKEN ON THAT DATE
 const getNotes = async (req, res) => {
     try {
+        const { userId, date } = req.params;
         const userNotes = await knex('notes')
             .join('medications', 'medications.user_id', 'notes.user_id')
             .select('notes.note_content', 'notes.date', 'medications.name', 'medications.dose', 'medications.frequency', 'medications.times')
@@ -101,10 +101,29 @@ const getNotes = async (req, res) => {
     }
 }
 
+// EDIT NOTE
+const editNote = async (req, res) => {
+    const { note_content } = req.body;
+    const { noteId: id } = req.params;
+    try {
+        const updatedNote = await knex('notes')
+            .where({ id })
+            .update({ note_content });
+
+        res.status(200).json(updatedNote);
+    } catch (error) {
+        res.status(500).json({
+            message: `Unable to edit note: ${error}`,
+        });
+    }
+};
+
+
 
 module.exports = {
     getUserProfile,
     getUserMedicationList,
     getUserMedication,
     getNotes,
+    editNote
 }
