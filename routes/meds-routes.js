@@ -4,7 +4,8 @@ const medsController = require('../controllers/meds-controllers');
 
 router
     .get('/:userId', medsController.getMedicationList)
-    .get('/:userId/:medId', medsController.getMedication)
+    .get('/:userId/:medId', medsController.getMedicationById)
+    .get('/:userId/date/:date', medsController.getMedicationsByDate)
     .post("/:userId/add", medsController.addMedication)
     .post("/:userId/update", medsController.updateMedication)
 

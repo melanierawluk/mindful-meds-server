@@ -37,7 +37,7 @@ const getMedicationList = async (req, res) => {
 
 
 // GET SPECIFIC MEDICATION FOR USER
-const getMedication = async (req, res) => {
+const getMedicationById = async (req, res) => {
     try {
         const { userId, medId } = req.params;
         const userMedication = await knex('medications')
@@ -46,7 +46,7 @@ const getMedication = async (req, res) => {
                 user_id: userId
             })
         if (!userId || userMedication.length === 0) {
-            return res.status(404).json({
+            return res.status(200).json({
                 message: `Medication with ID ${medId} cannot be found for user with ID ${userId}`
             });
         }
@@ -55,6 +55,41 @@ const getMedication = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: `Unable to retrieve medication with ID ${medId} with ID ${userId}: ${error}`
+        })
+    }
+}
+
+
+// GET MEDS TAKEN ON SPECIFIC DATE
+const getMedicationsByDate = async (req, res) => {
+    try {
+        const { userId, date } = req.params;
+        const userMedicationsOnDate = await knex('medications')
+            .where({
+                user_id: userId,
+            })
+            .whereRaw('? >= start_date AND (? <= end_date OR end_date IS NULL)', [date, date]);
+        const medicationsByDateArr = [];
+
+        if (!userId || userMedicationsOnDate.length === 0) {
+            return res.status(200).json([]);
+        }
+        userMedicationsOnDate.map((medication) => {
+            const medicationObject = {
+                id: medication.id,
+                name: medication.name,
+                dose: medication.dose,
+                frequency: medication.frequency,
+                times: medication.times,
+                start_date: medication.start_date,
+                end_date: medication.end_date
+            }
+            return (medicationsByDateArr.push(medicationObject));
+        });
+        res.status(200).json(medicationsByDateArr);
+    } catch (error) {
+        res.status(500).json({
+            message: `Unable to retrieve medications ${error}`
         })
     }
 }
@@ -135,7 +170,8 @@ const updateMedication = async (req, res) => {
 
 
 module.exports = {
-    getMedication,
+    getMedicationById,
+    getMedicationsByDate,
     getMedicationList,
     addMedication,
     updateMedication,

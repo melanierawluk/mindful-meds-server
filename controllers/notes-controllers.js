@@ -1,19 +1,20 @@
 const knex = require('knex')(require('../knexfile'));
 
 
-// - GET NOTES FROM USER ON SELECTED DATE, WITH MEDICATIONS TAKEN ON THAT DATE
-const getNotes = async (req, res) => {
+// GET NOTES ON SPECIFIC DATE
+const getNotesByDate = async (req, res) => {
     try {
         const { userId, date } = req.params;
         const userNotes = await knex('notes')
-            .join('medications', 'medications.user_id', 'notes.user_id')
-            .select('notes.note_content', 'notes.date', 'medications.name', 'medications.dose', 'medications.frequency', 'medications.times')
-            .where('notes.user_id', userId)
-            .andWhere('notes.date', date)
-            .whereRaw('notes.date >= medications.start_date AND (notes.date <= medications.end_date OR medications.end_date IS NULL)')
-
-        res.status(200).json(userNotes);
-
+            .where({
+                user_id: userId,
+                date: date
+            })
+        if (userNotes.length === 0) {
+            return res.status(200).json([]);
+        }
+        const userNote = userNotes[0];
+        res.status(200).json(userNote)
     } catch (error) {
         res.status(500).json({
             message: `Unable to retrieve notes for this date`
@@ -38,8 +39,30 @@ const editNote = async (req, res) => {
     }
 };
 
+
+// CREATE NEW NOTE 
+const createNote = async (req, res) => {
+    const { userId } = req.params;
+    const { date, note_content } = req.body;
+    try {
+        const newNote = await knex('notes').insert({
+            date,
+            note_content,
+            user_id: userId,
+        });
+
+        res.status(201).json(newNote);
+
+    } catch (error) {
+        res.status(500).json({
+            message: `Unable to create new note: ${error}`
+        });
+    };
+};
+
 module.exports = {
-    getNotes,
-    editNote
+    getNotesByDate,
+    editNote,
+    createNote
 }
 
