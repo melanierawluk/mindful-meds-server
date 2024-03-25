@@ -22,10 +22,11 @@ const getNotesByDate = async (req, res) => {
     }
 }
 
+
+
 // EDIT NOTE
 const editNote = async (req, res) => {
-    const { note_content } = req.body;
-    const { noteId: id } = req.params;
+    const { note_content, id } = req.body;
     try {
         const updatedNote = await knex('notes')
             .where({ id })
@@ -38,6 +39,7 @@ const editNote = async (req, res) => {
         });
     }
 };
+
 
 
 // CREATE NEW NOTE 
@@ -59,6 +61,8 @@ const createNote = async (req, res) => {
         });
     };
 };
+
+
 
 module.exports = {
     getNotesByDate,

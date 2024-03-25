@@ -1,7 +1,6 @@
 const knex = require('knex')(require('../knexfile'));
 
 
-
 // GET LIST OF MEDICATIONS FOR USER
 const getMedicationList = async (req, res) => {
     try {
@@ -58,6 +57,7 @@ const getMedicationById = async (req, res) => {
         })
     }
 }
+
 
 
 // GET MEDS TAKEN ON SPECIFIC DATE
@@ -167,6 +167,7 @@ const updateMedication = async (req, res) => {
         });
     };
 }
+
 
 
 module.exports = {

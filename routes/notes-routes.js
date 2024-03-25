@@ -4,7 +4,7 @@ const notesController = require('../controllers/notes-controllers');
 
 router
     .get('/:userId/:date', notesController.getNotesByDate)
-    .patch('/:userId/:noteId', notesController.editNote)
-    .post('/:userId', notesController.createNote); // Add route for creating new notes
+    .patch('/:userId', notesController.editNote)
+    .post('/:userId', notesController.createNote)
 
 module.exports = router;
