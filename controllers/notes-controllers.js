@@ -47,12 +47,13 @@ const createNote = async (req, res) => {
     const { userId } = req.params;
     const { date, note_content } = req.body;
     try {
-        const newNote = await knex('notes').insert({
+        const [newNoteId] = await knex('notes').insert({
             date,
             note_content,
             user_id: userId,
         });
 
+        const newNote = await knex('notes').where('id', newNoteId).first();
         res.status(201).json(newNote);
 
     } catch (error) {

@@ -7,6 +7,6 @@ router
     .get('/:userId/:medId', medsController.getMedicationById)
     .get('/:userId/date/:date', medsController.getMedicationsByDate)
     .post("/:userId/add", medsController.addMedication)
-    .post("/:userId/update", medsController.updateMedication)
+    .post("/:medId/update/", medsController.updateMedication)
 
 module.exports = router;

@@ -131,14 +131,14 @@ const addMedication = async (req, res) => {
 // POST NEW MEDICATION ENTRY AS AN UPDATE
 const updateMedication = async (req, res) => {
     const { name, dose, frequency, times, user_id } = req.body;
-    const { id } = req.params;
+    const { medId } = req.params;
 
     try {
         const timesArr = Array.isArray(times) ? times : [times];
 
         // Update the active and end_date fields of the medication entry being updated
         await knex("medications")
-            .where({ id })
+            .where({ id: medId })
             .update({
                 active: false,
                 end_date: knex.fn.now(),
@@ -163,7 +163,7 @@ const updateMedication = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({
-            message: `Unable to update medication with ID ${req.params.id}: ${error}`
+            message: `Unable to update medication with ID ${medId}: ${error}`
         });
     };
 }
