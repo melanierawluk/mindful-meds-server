@@ -8,5 +8,6 @@ router
     .get('/:userId/date/:date', medsController.getMedicationsByDate)
     .post("/:userId/add", medsController.addMedication)
     .post("/:medId/update/", medsController.updateMedication)
+    .patch("/:userId/:medId", medsController.stopMedication)
 
 module.exports = router;

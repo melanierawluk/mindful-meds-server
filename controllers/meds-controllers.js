@@ -169,6 +169,27 @@ const updateMedication = async (req, res) => {
 }
 
 
+// PATCH MEDICATION TO INACTIVATE IT
+const stopMedication = async (req, res) => {
+    const { userId, medId } = req.params;
+
+    try {
+        const updatedMedication = await knex("medications")
+            .where({ id: medId })
+            .update({
+                active: false,
+                end_date: knex.fn.now(),
+            });
+
+        res.status(200).json(updateMedication)
+
+    } catch (error) {
+        res.status(500).json({
+            message: `Unable to stop medication with ID ${medId}: ${error}`
+        });
+    };
+}
+
 
 module.exports = {
     getMedicationById,
@@ -176,4 +197,5 @@ module.exports = {
     getMedicationList,
     addMedication,
     updateMedication,
+    stopMedication
 }
