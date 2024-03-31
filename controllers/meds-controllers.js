@@ -1,18 +1,22 @@
 const knex = require('knex')(require('../knexfile'));
+require('dotenv').config();
+const jwt = require("jsonwebtoken");
+
 
 
 // GET LIST OF MEDICATIONS FOR USER
+// /user/:userId
 const getMedicationList = async (req, res) => {
     try {
-        const { userId } = req.params;
-        const medicationList = await knex('medications').where({ user_id: userId })
+        const medicationList = await knex('medications').where({ user_id: req.id });
         const medicationArr = [];
-        if (!userId || medicationList.length === 0) {
+        if (!req.id || medicationList.length === 0) {
             return res.status(404).json({
-                message: `Medication list for user with ID ${userId} not found`
+                message: `Medication list for user with ID ${req.id} not found`
             });
         }
-        medicationList.map((medication) => {
+
+        medicationList.forEach((medication) => {
             const medicationObj = {
                 id: medication.id,
                 active: medication.active,
@@ -22,38 +26,39 @@ const getMedicationList = async (req, res) => {
                 times: medication.times,
                 start_date: medication.start_date,
                 end_date: medication.end_date
-            }
-            return (medicationArr.push(medicationObj));
+            };
+            medicationArr.push(medicationObj);
         });
         res.status(200).json(medicationArr);
     } catch (error) {
         res.status(500).json({
-            message: `Unable to retrieve medication list for user with ID ${userId}`
-        })
+            message: `Unable to retrieve medication list for user with ID ${req.id}`
+        });
     }
-}
+};
 
 
 
 // GET SPECIFIC MEDICATION FOR USER
+// /user/:userId/:medId
 const getMedicationById = async (req, res) => {
     try {
-        const { userId, medId } = req.params;
+        const { medId } = req.params;
         const userMedication = await knex('medications')
             .where({
                 id: medId,
-                user_id: userId
+                user_id: req.id
             })
-        if (!userId || userMedication.length === 0) {
+        if (!req.id || userMedication.length === 0) {
             return res.status(200).json({
-                message: `Medication with ID ${medId} cannot be found for user with ID ${userId}`
+                message: `Medication with ID ${medId} cannot be found for user with ID ${req.id}`
             });
         }
         const userMed = userMedication[0];
         res.json(userMed);
     } catch (error) {
         res.status(500).json({
-            message: `Unable to retrieve medication with ID ${medId} with ID ${userId}: ${error}`
+            message: `Unable to retrieve medication with ID ${medId} with ID ${req.id}: ${error}`
         })
     }
 }
@@ -61,20 +66,22 @@ const getMedicationById = async (req, res) => {
 
 
 // GET MEDS TAKEN ON SPECIFIC DATE
+//user/:userId/date/:date
 const getMedicationsByDate = async (req, res) => {
     try {
-        const { userId, date } = req.params;
+        const { date } = req.params;
         const userMedicationsOnDate = await knex('medications')
             .where({
-                user_id: userId,
+                user_id: req.id,
             })
-            .whereRaw('? >= start_date AND (? <= end_date OR end_date IS NULL)', [date, date]);
+            .whereRaw('(? >= start_date) AND (? <= end_date OR end_date IS NULL)', [date, date]);
         const medicationsByDateArr = [];
 
-        if (!userId || userMedicationsOnDate.length === 0) {
+
+        if (!req.id || userMedicationsOnDate.length === 0) {
             return res.status(200).json([]);
         }
-        userMedicationsOnDate.map((medication) => {
+        userMedicationsOnDate.forEach((medication) => {
             const medicationObject = {
                 id: medication.id,
                 name: medication.name,
@@ -97,6 +104,7 @@ const getMedicationsByDate = async (req, res) => {
 
 
 // POST NEW MED
+// /user/:userId/add
 const addMedication = async (req, res) => {
     const { active, name, dose, frequency, times, user_id } = req.body;
 
@@ -129,6 +137,7 @@ const addMedication = async (req, res) => {
 
 
 // POST NEW MEDICATION ENTRY AS AN UPDATE
+// /user/:medId/update
 const updateMedication = async (req, res) => {
     const { name, dose, frequency, times, user_id } = req.body;
     const { medId } = req.params;
@@ -170,11 +179,12 @@ const updateMedication = async (req, res) => {
 
 
 // PATCH MEDICATION TO INACTIVATE IT
+// /user/:userId/:medId
 const stopMedication = async (req, res) => {
-    const { userId, medId } = req.params;
+    const { medId } = req.params;
 
     try {
-        const updatedMedication = await knex("medications")
+        const updateMedication = await knex("medications")
             .where({ id: medId })
             .update({
                 active: false,

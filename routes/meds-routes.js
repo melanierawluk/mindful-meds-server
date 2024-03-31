@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const medsController = require('../controllers/meds-controllers');
+const verifyToken = require('../middleware/verifyToken');
 
 router
-    .get('/:userId', medsController.getMedicationList)
-    .get('/:userId/:medId', medsController.getMedicationById)
-    .get('/:userId/date/:date', medsController.getMedicationsByDate)
-    .post("/:userId/add", medsController.addMedication)
-    .post("/:medId/update/", medsController.updateMedication)
-    .patch("/:userId/:medId", medsController.stopMedication)
+    .get('/:userId', verifyToken, medsController.getMedicationList)
+    .get('/:userId/:medId', verifyToken, medsController.getMedicationById)
+    .get('/:userId/date/:date', verifyToken, medsController.getMedicationsByDate)
+    .post("/:userId/add", verifyToken, medsController.addMedication)
+    .post("/:medId/update", verifyToken, medsController.updateMedication)
+    .patch("/:userId/:medId", verifyToken, medsController.stopMedication)
 
 module.exports = router;
